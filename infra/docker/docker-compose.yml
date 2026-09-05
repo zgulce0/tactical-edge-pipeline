@@ -36,6 +36,7 @@ services:
     build: ../../services/sensor-simulator
     container_name: sensor-simulator
     environment:
+      PYTHONUNBUFFERED: 1
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin123
@@ -50,6 +51,7 @@ services:
     build: ../../services/worker
     container_name: worker
     environment:
+      PYTHONUNBUFFERED: 1    
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_USER: admin
       RABBITMQ_PASS: admin123
