@@ -1,0 +1,37 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Repoyu indir
+        uses: actions/checkout@v4
+
+      - name: GitHub Container Registry'ye giris yap
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sensor Simulator image'ini build et ve gonder
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/sensor-simulator
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/tactical-edge-sensor-simulator:latest
+
+      - name: Worker image'ini build et ve gonder
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/worker
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/tactical-edge-worker:latest
