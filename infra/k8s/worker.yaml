@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/zgulce0/tactical-edge-worker:latest
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "admin"
+            - name: RABBITMQ_PASS
+              value: "admin123"
+            - name: QUEUE_NAME
+              value: "sensor_data"
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "sensordata"
+            - name: DB_USER
+              value: "admin"
+            - name: DB_PASS
+              value: "admin123"
+            - name: TEMPERATURE_THRESHOLD
+              value: "40"
