@@ -105,26 +105,34 @@ def process_message(conn, body):
 def main():
     db_conn = connect_to_db()
     create_table_if_not_exists(db_conn)
-    mq_conn, channel = connect_to_rabbitmq()
 
-    def callback(ch, method, properties, body):
+    while True:
+        mq_conn, channel = connect_to_rabbitmq()
+
+        def callback(ch, method, properties, body):
+            try:
+                process_message(db_conn, body)
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+            except Exception as e:
+                print(f"[HATA] Mesaj işlenemedi: {e}")
+                ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback)
+
+        print("[BEKLİYOR] Mesajlar dinleniyor, çıkmak için Ctrl+C...")
         try:
-            process_message(db_conn, body)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-        except Exception as e:
-            print(f"[HATA] Mesaj işlenemedi: {e}")
-            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
-
-    channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback)
-
-    print("[BEKLİYOR] Mesajlar dinleniyor, çıkmak için Ctrl+C...")
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        print("\n[DURDURULDU] Worker kapatılıyor.")
-        mq_conn.close()
-        db_conn.close()
+            channel.start_consuming()
+        except KeyboardInterrupt:
+            print("\n[DURDURULDU] Worker kapatılıyor.")
+            mq_conn.close()
+            db_conn.close()
+            break
+        except (pika.exceptions.ConnectionClosedByBroker,
+                pika.exceptions.StreamLostError,
+                pika.exceptions.AMQPConnectionError):
+            print("[HATA] RabbitMQ bağlantısı koptu, yeniden bağlanılıyor...")
+            continue
 
 
 if __name__ == "__main__":
