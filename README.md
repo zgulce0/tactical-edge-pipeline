@@ -136,4 +136,4 @@ sensor-simulator | [GÖNDERİLDİ] {"device_id": "sensor-001", ...}
 
 ## Yazar
 
-[Zeynep Gülce] — Bilgisayar Mühendisliği, DevOps Stajı Projesi
+[Zeynep Gülce Gülmüş] — Bilgisayar Mühendisliği, DevOps Stajı Projesi
