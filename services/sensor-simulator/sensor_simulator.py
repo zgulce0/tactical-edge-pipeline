@@ -34,7 +34,7 @@ def connect_to_rabbitmq():
         except pika.exceptions.ProbableAuthenticationError:
             print("[HATA] Kimlik doğrulama başarısız! Kullanıcı adı/şifre yanlış. Environment değişkenlerini kontrol edin.")
             time.sleep(3)
-        except pika.exceptions.AMQPConnectionError:
+        except (pika.exceptions.AMQPConnectionError, OSError):
             print("[HATA] RabbitMQ'ya bağlanılamadı, 3 saniye sonra tekrar denenecek...")
             time.sleep(3)
 
